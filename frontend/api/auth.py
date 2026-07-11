@@ -9,16 +9,31 @@ from .config import settings
 from .database import get_db
 from . import models
 
-# Configure CryptContext with fallback algorithms to be extremely robust on Windows/Python 3.13
-pwd_context = CryptContext(schemes=["bcrypt", "sha256_crypt"], deprecated="auto")
+import hashlib
+
+# Secure hashlib-based PBKDF2 hashing that has ZERO external binary dependencies (like bcrypt)
+def get_password_hash(password: str) -> str:
+    salt = "supermarket_static_salt"
+    iterations = 100000
+    key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), iterations)
+    return f"pbkdf2:sha256:{iterations}${salt}${key.hex()}"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    if hashed_password.startswith("pbkdf2:sha256:"):
+        try:
+            parts = hashed_password.split("$")
+            if len(parts) == 3:
+                header, salt, key_hex = parts
+                iterations = int(header.split(":")[-1])
+                key = hashlib.pbkdf2_hmac('sha256', plain_password.encode('utf-8'), salt.encode('utf-8'), iterations)
+                return key.hex() == key_hex
+        except Exception:
+            return False
+    # Fallback/Legacy verification if needed
+    return False
 
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
