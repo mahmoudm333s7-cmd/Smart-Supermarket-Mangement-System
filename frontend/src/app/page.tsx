@@ -149,8 +149,8 @@ export default function RootPage() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background font-sans text-foreground">
-      {/* Sidebar (Right side for RTL layout) */}
-      <aside className="w-64 border-l border-border bg-card flex flex-col justify-between shrink-0">
+      {/* Sidebar (Desktop only - hidden on mobile) */}
+      <aside className="hidden md:flex w-64 border-l border-border bg-card flex-col justify-between shrink-0">
         <div>
           {/* Logo Section */}
           <div className="flex items-center gap-3 p-6 border-b border-border/60">
@@ -208,21 +208,27 @@ export default function RootPage() {
       </aside>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 border-b border-border bg-card/60 backdrop-blur-md px-6 flex items-center justify-between">
-          {/* Global search launcher */}
+        <header className="h-14 md:h-16 border-b border-border bg-card/60 backdrop-blur-md px-3 md:px-6 flex items-center justify-between shrink-0">
+          {/* Global search launcher - hidden on small mobile */}
           <button
             onClick={() => {
               setSearchQuery("");
               setSearchResults({ products: [], customers: [] });
               setShowSearchModal(true);
             }}
-            className="flex items-center gap-2 bg-muted/15 border border-border rounded-lg px-4 py-2 text-xs text-muted-foreground w-64 hover:border-primary/50 transition text-right"
+            className="hidden sm:flex items-center gap-2 bg-muted/15 border border-border rounded-lg px-4 py-2 text-xs text-muted-foreground w-48 md:w-64 hover:border-primary/50 transition text-right"
           >
             <Search className="h-4 w-4" />
-            <span>بحث سريع في النظام... (Ctrl+K)</span>
+            <span className="hidden md:inline">بحث سريع في النظام... (Ctrl+K)</span>
+            <span className="md:hidden">بحث...</span>
           </button>
+          {/* Mobile: store name */}
+          <div className="sm:hidden flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-black text-sm">S</div>
+            <span className="text-sm font-bold text-foreground truncate max-w-[120px]">{storeName}</span>
+          </div>
 
           {/* Action buttons (Notifications) */}
           <div className="flex items-center gap-4 relative">
@@ -270,7 +276,7 @@ export default function RootPage() {
         </header>
 
         {/* Content viewport */}
-        <main className="flex-1 overflow-y-auto p-6 bg-background">
+        <main className="flex-1 overflow-y-auto p-3 md:p-6 bg-background pb-20 md:pb-6">
           {activeTab === "dashboard" && <DashboardView />}
           {activeTab === "products" && <ProductsView />}
           {activeTab === "sales" && <SalesView />}
@@ -282,6 +288,38 @@ export default function RootPage() {
           {activeTab === "settings" && <SettingsView />}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar - visible only on small screens */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-center justify-around px-1 py-1 safe-area-pb">
+        {sidebarLinks.slice(0, 5).map((link) => {
+          const Icon = link.icon;
+          const isActive = activeTab === link.id;
+          return (
+            <button
+              key={link.id}
+              onClick={() => setActiveTab(link.id)}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all min-w-[52px] ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <Icon className={`h-5 w-5 ${isActive ? "text-primary" : ""}`} />
+              <span className="text-[9px] font-semibold truncate w-full text-center">
+                {link.label.split(" ")[0]}
+              </span>
+            </button>
+          );
+        })}
+        {/* More button to access remaining tabs */}
+        <button
+          onClick={() => setActiveTab(activeTab === "settings" ? "dashboard" : "settings")}
+          className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all min-w-[52px] ${
+            ["cash", "reports", "settings"].includes(activeTab) ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <Settings className="h-5 w-5" />
+          <span className="text-[9px] font-semibold">المزيد</span>
+        </button>
+      </nav>
 
       {/* Global Command Search Overlay */}
       {showSearchModal && (

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,12 @@ const cairo = Cairo({
 export const metadata: Metadata = {
   title: "نظام السوبر ماركت الذكي",
   description: "نظام إدارة مبيعات ومخازن السوبر ماركت الذكي مع لوحة تحكم متميزة",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
