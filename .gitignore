@@ -1,0 +1,42 @@
+# Environment
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+market_backup.db
+
+# Node
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# VS Code
+.vscode/settings.json
+
+# Backup files
+*.bak
