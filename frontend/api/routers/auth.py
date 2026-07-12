@@ -37,18 +37,18 @@ def register(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # First, if there are absolutely no users in the database, automatically seed a default admin/admin account
-    # to guarantee the owner can log in immediately.
-    user_count = db.query(models.User).count()
-    if user_count == 0:
-        default_admin = models.User(
+    # Always check if admin user exists, if not, create it immediately.
+    # This guarantees the default account works even if the SQLite database file in /tmp is wiped/re-created by Vercel serverless.
+    admin_user = db.query(models.User).filter(models.User.username == "admin").first()
+    if not admin_user:
+        new_admin = models.User(
             username="admin",
             hashed_password=auth.get_password_hash("admin123"),
             role="admin"
         )
-        db.add(default_admin)
+        db.add(new_admin)
         db.commit()
-        db.refresh(default_admin)
+        db.refresh(new_admin)
 
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
