@@ -57,6 +57,11 @@ def get_report_data(db: Session, start_date: datetime, end_date: datetime):
         )
     ).scalar() or 0.0
     
+    # Total Outstanding Debt of all customers
+    total_debt = db.query(func.sum(models.Customer.current_debt)).filter(
+        models.Customer.is_deleted == False
+    ).scalar() or 0.0
+    
     net_profit = profit - expenses
     
     # Top Selling Products
@@ -162,6 +167,7 @@ def get_report_data(db: Session, start_date: datetime, end_date: datetime):
         "cash_sales": round(cash_sales, 2),
         "credit_sales": round(credit_sales, 2),
         "expenses": round(expenses, 2),
+        "total_debt": round(total_debt, 2),
         "net_profit": round(net_profit, 2),
         "top_selling": top_selling,
         "lowest_selling": lowest_selling,

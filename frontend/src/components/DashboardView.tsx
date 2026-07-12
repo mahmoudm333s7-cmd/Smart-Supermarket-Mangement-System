@@ -84,7 +84,7 @@ export default function DashboardView() {
     },
     {
       title: "الديون المستحقة",
-      value: `${data.credit_sales - (cashSummary?.sales_income - (data.revenue - data.credit_sales) || 0) > 0 ? (data.credit_sales - (cashSummary?.sales_income - (data.revenue - data.credit_sales))).toFixed(2) : 1240} جنيه`, // Fallback for demonstration
+      value: `${data.total_debt || 0} جنيه`,
       desc: "ديون العملاء المعلقة",
       icon: AlertTriangle,
       color: "text-warning bg-warning/10"
