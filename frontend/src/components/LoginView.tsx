@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import api from "../app/api";
+import api, { safeStorage } from "../app/api";
 
 interface LoginViewProps {
   onLoginSuccess: (username: string, role: string) => void;
@@ -24,9 +24,9 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       formData.append("password", password);
 
       const data = await api.auth.login(formData);
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("username", data.username);
-      localStorage.setItem("role", data.role);
+      safeStorage.setItem("token", data.access_token);
+      safeStorage.setItem("username", data.username);
+      safeStorage.setItem("role", data.role);
       
       onLoginSuccess(data.username, data.role);
     } catch (err: any) {

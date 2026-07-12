@@ -1,3 +1,45 @@
+// Safe localStorage wrapper to prevent crashes on strict mobile browsers (like Safari Private Mode)
+export const safeStorage = {
+  getItem(key: string): string | null {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch (e) {
+      console.warn("Storage access denied:", e);
+    }
+    // Fallback to memory
+    return typeof window !== "undefined" ? (window as any)[`__mem_${key}`] || null : null;
+  },
+  setItem(key: string, value: string): void {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(key, value);
+        return;
+      }
+    } catch (e) {
+      console.warn("Storage write denied:", e);
+    }
+    // Fallback to memory
+    if (typeof window !== "undefined") {
+      (window as any)[`__mem_${key}`] = value;
+    }
+  },
+  removeItem(key: string): void {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+    } catch (e) {
+      console.warn("Storage delete denied:", e);
+    }
+    if (typeof window !== "undefined") {
+      delete (window as any)[`__mem_${key}`];
+    }
+  }
+};
+
 const BASE_URL = typeof window !== "undefined"
   ? (process.env.NEXT_PUBLIC_API_URL || "")
   : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
@@ -8,7 +50,7 @@ interface FetchOptions extends RequestInit {
 }
 
 async function fetchApi(endpoint: string, options: FetchOptions = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = safeStorage.getItem("token");
   
   const headers = new Headers(options.headers || {});
   if (token) {

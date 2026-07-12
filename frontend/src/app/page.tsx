@@ -10,7 +10,7 @@ import DebtsView from "../components/DebtsView";
 import CashView from "../components/CashView";
 import ReportsView from "../components/ReportsView";
 import SettingsView from "../components/SettingsView";
-import api from "./api";
+import api, { safeStorage } from "./api";
 import { 
   LayoutDashboard, Package, ShoppingCart, 
   ShoppingBag, Users, AlertTriangle, 
@@ -38,7 +38,7 @@ export default function RootPage() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("token");
+    const token = safeStorage.getItem("token");
     if (!token) {
       setIsAuthenticated(false);
       return;
@@ -50,7 +50,7 @@ export default function RootPage() {
       setIsAuthenticated(true);
       loadGlobalData();
     } catch (err) {
-      localStorage.removeItem("token");
+      safeStorage.removeItem("token");
       setIsAuthenticated(false);
     }
   };
@@ -85,9 +85,9 @@ export default function RootPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
+    safeStorage.removeItem("token");
+    safeStorage.removeItem("username");
+    safeStorage.removeItem("role");
     setIsAuthenticated(false);
   };
 
