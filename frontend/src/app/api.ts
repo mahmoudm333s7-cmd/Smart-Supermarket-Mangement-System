@@ -40,8 +40,9 @@ export const safeStorage = {
   }
 };
 
+// Dynamically resolve BASE_URL. On client-side, fallback to location.origin to ensure absolute URLs
 const BASE_URL = typeof window !== "undefined"
-  ? (process.env.NEXT_PUBLIC_API_URL || "")
+  ? (process.env.NEXT_PUBLIC_API_URL || window.location.origin)
   : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
 
 
