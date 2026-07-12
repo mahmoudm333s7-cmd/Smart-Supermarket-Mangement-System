@@ -125,6 +125,13 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
           <button
             type="submit"
+            onClick={(e) => {
+              // If it's a mobile touch event, sometimes onSubmit doesn't trigger properly
+              // so we call it manually if not already loading.
+              if (!loading) {
+                handleSubmit(e);
+              }
+            }}
             disabled={loading}
             className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
           >
