@@ -12,7 +12,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -23,6 +22,9 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       formData.append("username", username);
       formData.append("password", password);
 
+      const targetUrl = typeof window !== "undefined" ? `${window.location.origin}/api/auth/login` : "/api/auth/login";
+      console.log("Connecting to:", targetUrl);
+      
       const data = await api.auth.login(formData);
       safeStorage.setItem("token", data.access_token);
       safeStorage.setItem("username", data.username);
@@ -30,7 +32,16 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       
       onLoginSuccess(data.username, data.role);
     } catch (err: any) {
-      setError(err.message || "فشل تسجيل الدخول. يرجى التحقق من المدخلات.");
+      console.error("Login failure:", err);
+      // Construct a highly detailed error message for display on the phone screen
+      let detailedError = `خطأ: ${err.message || String(err)}`;
+      if (err.stack) {
+        detailedError += ` | Stack: ${err.stack.toString().slice(0, 100)}...`;
+      }
+      if (typeof window !== "undefined") {
+        detailedError += ` | Origin: ${window.location.origin}`;
+      }
+      setError(detailedError);
     } finally {
       setLoading(false);
     }
